@@ -1,2 +1,4 @@
-# checkthisout
+# checkthisout(api)
  
+아침마다 교문 앞에서 자가진단 여부를 
+검사하는 행위를 효율적으로 하고자 만듬.
