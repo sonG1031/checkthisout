@@ -1,0 +1,1 @@
+JWT_SECRET_KEY = "7x!QG[)'a?9psH?]"
