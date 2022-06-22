@@ -4,11 +4,14 @@ from flask_restx import Resource, Namespace
 from api.route.auth import login_required
 from api import db
 from datetime import datetime
+from api.steps.step1 import *
+from api.steps.step2 import *
 
 img = Namespace("image")
 
 @img.route('')
 class Image(Resource):
+    @login_required
     def post(self):
         pass
         # 1. 받아온 사진을 a.jpeg 파일과 비교하여 유효성 검사

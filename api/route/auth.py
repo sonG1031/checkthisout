@@ -14,16 +14,15 @@ auth = Namespace('auth')
 @auth.route('/signup/')
 class Signup(Resource):
     def post(self):
-        user = User.query.filter((User.username==request.json["username"])|(User.email==request.json['email'])).first()
+        user = User.query.filter_by(student_id = request.json["student_id"]).first()
         if not user:
+            student_id = request.json['student_id']
             username = request.json['username']
             password = bcrypt.hashpw(request.json['password'].encode("utf-8"), bcrypt.gensalt())
-            email = request.json['email']
             user = User(username=username,
                         password=password.decode('utf-8'),
-                        email=email,
-                        created= datetime.now(),
-                        updated= datetime.now())
+                        student_id=student_id
+                        )
 
             db.session.add(user)
             db.session.commit()
@@ -38,13 +37,13 @@ class Signup(Resource):
                 'code': -1,
                 'msg': "회원가입 실패!",
                 'data': {}
-            })
+            }), 403
 
 @auth.route('/login/')
 class Login(Resource):
     def post(self):
         error = None
-        user = User.query.filter_by(username=request.json['username']).first()
+        user = User.query.filter_by(student_id=request.json['student_id']).first()
 
         if not user:
             error = "존재하지 않는 사용자입니다."
@@ -52,7 +51,7 @@ class Login(Resource):
             error = "비밀번호가 올바르지 않습니다."
         if error is None:
             payload = {
-                "username": user.username,
+                "student_id": user.student_id,
                 "password": user.password
             }
             token = jwt.encode(payload, JWT_SECRET_KEY, algorithm="HS256")
@@ -64,9 +63,7 @@ class Login(Resource):
                     "id" : user.id,
                     "username" : user.username,
                     "password": user.password,
-                    "email": user.email,
-                    "created" : user.created.strftime('%Y-%m-%d'),
-                    "updated" : user.updated.strftime('%Y-%m-%d')
+                    "student_id": user.student_id
                 }
             }, ensure_ascii=False)
             db.session.remove()
@@ -77,7 +74,7 @@ class Login(Resource):
             "code": -1,
             "msg": error,
             "data": {}
-        })
+        }), 403
 
 
 # 토큰 검증을 위한 함수들
