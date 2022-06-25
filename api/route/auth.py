@@ -5,7 +5,7 @@ from api import db
 from api.models import User
 
 import bcrypt, jwt
-from config import JWT_SECRET_KEY
+from config import JWT_SECRET_KEY, IS_CAM_KEY
 from functools import wraps
 from datetime import datetime
 
@@ -89,6 +89,12 @@ def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwagrs):
         token = request.headers.get('authorization')
+        isCam = request.headers.get('camera_request')
+
+        if isCam == IS_CAM_KEY:
+            print("cam!!")
+            return f(*args, **kwagrs)
+
         if token is not None:
             payload = check_token(token)
             if payload is None:

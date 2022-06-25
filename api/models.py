@@ -9,6 +9,6 @@ class User(db.Model):
 
 class SelfCheck(db.Model):
     id = db.Column(db.Integer, primary_key = True)
-    img = db.Column(db.String(200), nullable=False) # 경로만 저장
+    code = db.Column(db.String(200), unique=True, nullable=False)
     student_id = db.Column(db.String(150), db.ForeignKey('user.student_id', ondelete='CASCADE'), nullable=False)
     user = db.relationship("User", backref=db.backref("self_check_set", cascade='all, delete-orphan'))

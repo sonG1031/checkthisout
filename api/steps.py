@@ -1,12 +1,11 @@
 import os
 import cv2
 import pytesseract
-from PIL import Image
-import numpy as np
+
 from datetime import datetime
 
 from api.models import User
-from api import db
+
 
 def step1(img_path):
     a = cv2.imread('./images/a.jpeg')
@@ -40,8 +39,12 @@ def step1(img_path):
         os.remove(img_path)
         return False
 
+
 def step2(img_path, student_id):
+    pytesseract.pytesseract.tesseract_cmd = r'/opt/homebrew/Cellar/tesseract/5.1.0/bin/tesseract'
+
     b = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
+    os.remove(img_path)
 
     img_blurred = cv2.GaussianBlur(b, ksize=(0, 0), sigmaX=1)
     img_thresh = cv2.adaptiveThreshold(
