@@ -1,10 +1,7 @@
 from flask import request, jsonify
 from flask_restx import Resource, Namespace
-# from api.models import
 from api.route.auth import login_required
-from api import db
-from datetime import datetime
-from api.steps import step1
+from api.steps import *
 
 
 img = Namespace("image")
@@ -17,11 +14,19 @@ class Image(Resource):
         # print(request.headers['student_id'])
         img = request.files['image']
         # print(type(img))
-        path = f"./images/userImgs/{request.headers['student_id']}.jpg"
+        path = f"./images/userImgs/{request.headers['student_id']}.jpeg"
         img.save(path)
 
+        user = User.query.filter_by(student_id=request.headers['student_id']).first()
+
         if step1(path):
-            return jsonify({"msg":"good"})
+            if step2(path, user.student_id):
+                print("모든 검증을 통과하셨어요!!")
+            else:
+                print("다시시도")
+        else:
+            print("다시시도")
+            # return jsonify({'msg': -1})
 
         # 1. 받아온 사진을 a.jpeg 파일과 비교하여 유효성 검사
         # 2. 사진에서 글자 추출

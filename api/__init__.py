@@ -21,6 +21,7 @@ def create_app():
     #namespace
     from .route.auth import auth
     from .route.img import img
+
     api.add_namespace(auth, '/auth')
     api.add_namespace(img, '/image')
 
