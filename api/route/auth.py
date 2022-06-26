@@ -1,4 +1,4 @@
-from flask import request, jsonify, Response, json
+from flask import request, jsonify, Response, json, Blueprint
 from flask_restx import Resource, Namespace, abort
 
 from api import db
@@ -7,9 +7,9 @@ from api.models import User
 import bcrypt, jwt
 from config import JWT_SECRET_KEY, IS_CAM_KEY
 from functools import wraps
-from datetime import datetime
 
 auth = Namespace('auth')
+
 
 @auth.route('/signup/')
 class Signup(Resource):
@@ -37,7 +37,7 @@ class Signup(Resource):
                 'code': -1,
                 'msg': "회원가입 실패!",
                 'data': {}
-            }), 403
+            })
 
 @auth.route('/login/')
 class Login(Resource):
@@ -74,7 +74,7 @@ class Login(Resource):
             "code": -1,
             "msg": error,
             "data": {}
-        }), 403
+        })
 
 
 # 토큰 검증을 위한 함수들
@@ -103,3 +103,11 @@ def login_required(f):
             abort(401, message="토큰 검증에 실패하셨습니다.")
         return f(*args, **kwagrs)
     return decorated_function
+
+
+# a = User.query.all()
+# a[0].checked = False
+# b = SelfCheck.query.all()
+# db.session.delete(b[0])
+# db.session.delete(b[0])
+# db.session.commit()

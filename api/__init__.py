@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, Blueprint
 from flask_restx import Api
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
@@ -24,5 +24,7 @@ def create_app():
 
     api.add_namespace(auth, '/auth')
     api.add_namespace(img, '/image')
-
     return app
+
+
+
