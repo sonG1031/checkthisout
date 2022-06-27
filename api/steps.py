@@ -1,6 +1,6 @@
 import os
 import cv2
-import pytesseract
+import easyocr
 
 from datetime import datetime
 
@@ -31,7 +31,7 @@ def step1(img_path):
 
     score = cv2.compareHist(hist_a, hist_b, cv2.HISTCMP_CHISQR_ALT)
     print(score)
-    if score < 1.0:
+    if score < 1.5:
         print("자가진단 화면")
         return True
     else :
@@ -41,32 +41,28 @@ def step1(img_path):
 
 
 def step2(img_path, student_id):
-    pytesseract.pytesseract.tesseract_cmd = r'/opt/homebrew/Cellar/tesseract/5.1.0/bin/tesseract'
 
-    b = cv2.imread(img_path, cv2.IMREAD_GRAYSCALE)
+    reader = easyocr.Reader(['ko'], gpu=True)
+
+    result = reader.readtext(img_path)
     os.remove(img_path)
-
-    img_blurred = cv2.GaussianBlur(b, ksize=(0, 0), sigmaX=1)
-    img_thresh = cv2.adaptiveThreshold(
-        img_blurred,
-        maxValue=255.0,
-        adaptiveMethod=cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
-        thresholdType=cv2.THRESH_BINARY_INV,
-        blockSize=19,
-        C=9
-    )
-
-    result = pytesseract.image_to_string(img_thresh, lang='kor').split()
-
     now = datetime.now().strftime('%Y-%m-%d')
     user = User.query.filter_by(student_id= student_id).first()
-    cnt = 0
-    for text in result:
-        if text == user.username:
-            cnt += 1
-        elif now in text:
-            cnt += 1
-    if cnt == 2:
+    cnt = [0, 0]
+
+    for _, text, _ in result:
+        print(text)
+        for char in user.username:
+            if char in text:
+                cnt[0] += 1
+                print(text)
+        if now in text:
+            cnt[1] += 1
+
+    print(cnt)
+    if cnt[0] >= 1 and cnt[1] >= 1:
         return True
     else:
         return False
+
+

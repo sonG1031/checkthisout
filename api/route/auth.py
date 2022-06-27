@@ -2,11 +2,12 @@ from flask import request, jsonify, Response, json, Blueprint
 from flask_restx import Resource, Namespace, abort
 
 from api import db
-from api.models import User
+from api.models import User, SelfCheck
 
 import bcrypt, jwt
 from config import JWT_SECRET_KEY, IS_CAM_KEY
 from functools import wraps
+from datetime import datetime
 
 auth = Namespace('auth')
 
@@ -66,6 +67,18 @@ class Login(Resource):
                     "student_id": user.student_id
                 }
             }, ensure_ascii=False)
+
+            qr = SelfCheck.query.filter_by(student_id= user.student_id).first()
+            if qr :
+                today = datetime.today().strftime('%Y-%m-%d')
+                qrDate = qr.date.strftime('%Y-%m-%d')
+
+                if today != qrDate:
+                    db.session.delete(qr)
+                    user.checked = False
+                    db.session.commit()
+
+
             db.session.remove()
             response = Response(body)
             response.headers['authorization'] = token
@@ -91,7 +104,7 @@ def login_required(f):
         token = request.headers.get('authorization')
         isCam = request.headers.get('camera_request')
 
-        if isCam == IS_CAM_KEY:
+        if isCam == IS_CAM_KEY: # cam이 보낸 요청인지 확인함.
             print("cam!!")
             return f(*args, **kwagrs)
 
@@ -104,10 +117,3 @@ def login_required(f):
         return f(*args, **kwagrs)
     return decorated_function
 
-
-# a = User.query.all()
-# a[0].checked = False
-# b = SelfCheck.query.all()
-# db.session.delete(b[0])
-# db.session.delete(b[0])
-# db.session.commit()
