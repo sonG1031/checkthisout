@@ -42,7 +42,7 @@ def step1(img_path):
 
 def step2(img_path, student_id):
 
-    reader = easyocr.Reader(['ko'], gpu=True)
+    reader = easyocr.Reader(['ko'])
 
     result = reader.readtext(img_path)
     os.remove(img_path)
