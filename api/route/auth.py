@@ -72,12 +72,12 @@ class Login(Resource):
             if qr :
                 today = datetime.today().strftime('%Y-%m-%d')
                 qrDate = qr.date.strftime('%Y-%m-%d')
+                diff = str(datetime.now() - qr.date)[:7].split(":")
 
-                if today != qrDate:
+                if today != qrDate or int(diff[0]) > 2:
                     db.session.delete(qr)
                     user.checked = False
                     db.session.commit()
-
 
             db.session.remove()
             response = Response(body)
